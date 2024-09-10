@@ -4,7 +4,7 @@ download_file() {
   url=$1
   output=$2
   echo "Downloading $output..."
-  curl -L $url -o $output
+  curl -L -o $output $url
   if [[ $? -ne 0 ]]; then
     echo "Error downloading $output."
     exit 1
@@ -18,7 +18,7 @@ extract_zip() {
     echo "Extracting $file..."
     unzip $file
     echo "Extraction of $file completed."
-    echo "Removing $file..."
+    echo "Removing the ZIP file $file..."
     rm -f $file
     echo "$file removed."
   else
@@ -56,65 +56,70 @@ EOF
   echo "Service $service_name started."
 }
 
-echo "Please select an option:"
-echo "1) Install Core"
-echo "2) Iran"
-echo "3) Abroad"
-echo "4) Full removal"
+menu() {
+  echo "Please select an option:"
+  echo "1) Install Core"
+  echo "2) Iran"
+  echo "3) Abroad"
+  echo "4) Full removal"
+}
 
-read -p "Your choice: " choice
+while true; do
+  menu
+  read -p "Your choice: " choice
 
-case $choice in
-  1)
-    echo "Install Core selected."
-    if [[ ! -f "/root/backhaul" ]]; then
-      download_file "https://github.com/0fariid0/bakulme/blob/main/backhaul" "/root/backhaul"
-    else
-      echo "Backhaul file already downloaded."
-    fi
-    ;;
-  2)
-    echo "Iran selected."
-    download_file "https://github.com/0fariid0/bakulme/blob/main/ir.zip" "ir.zip"
-    extract_zip "ir.zip"
+  case $choice in
+    1)
+      echo "Install Core selected."
+      if [[ ! -f "/root/backhaul" ]]; then
+        download_file "https://github.com/0fariid0/bakulme/raw/main/backhaul" "/root/backhaul"
+      else
+        echo "Backhaul file already downloaded."
+      fi
+      ;;
+    2)
+      echo "Iran selected."
+      download_file "https://github.com/0fariid0/bakulme/raw/main/ir.zip" "ir.zip"
+      extract_zip "ir.zip"
 
-    for i in {1..6}; do
-      create_service "backhaul-tu$i" "tu$i.toml"
-    done
-    ;;
-  3)
-    echo "Abroad selected."
-    download_file "https://github.com/0fariid0/bakulme/blob/main/kh.zip" "kh.zip"
-    extract_zip "kh.zip"
+      for i in {1..6}; do
+        create_service "backhaul-tu$i" "tu$i.toml"
+      done
+      ;;
+    3)
+      echo "Abroad selected."
+      download_file "https://github.com/0fariid0/bakulme/raw/main/kh.zip" "kh.zip"
+      extract_zip "kh.zip"
 
-    read -p "Enter abroad number (1 to 6): " external_number
-    if [[ $external_number =~ ^[1-6]$ ]]; then
-      service_name="backhaul-tu$external_number"
-      toml_file="tu$external_number.toml"
-      create_service $service_name $toml_file
-    else
-      echo "Invalid number! Please enter a number between 1 and 6."
-    fi
-    ;;
-  4)
-    echo "Full removal selected."
-    echo "Removing files and services..."
+      read -p "Enter abroad number (1 to 6): " external_number
+      if [[ $external_number =~ ^[1-6]$ ]]; then
+        service_name="backhaul-tu$external_number"
+        toml_file="tu$external_number.toml"
+        create_service $service_name $toml_file
+      else
+        echo "Invalid number! Please enter a number between 1 and 6."
+      fi
+      ;;
+    4)
+      echo "Full removal selected."
+      echo "Removing files and services..."
 
-    [[ -f "/root/backhaul" ]] && rm -f /root/backhaul && echo "Backhaul file removed."
-    [[ -f "ir.zip" ]] && rm -f ir.zip && echo "ir.zip removed."
-    [[ -f "kh.zip" ]] && rm -f kh.zip && echo "kh.zip removed."
+      [[ -f "/root/backhaul" ]] && rm -f /root/backhaul && echo "Backhaul file removed."
+      [[ -f "ir.zip" ]] && rm -f ir.zip && echo "ir.zip removed."
+      [[ -f "kh.zip" ]] && rm -f kh.zip && echo "kh.zip removed."
 
-    for i in {1..6}; do
-      sudo systemctl stop backhaul-tu$i.service
-      sudo systemctl disable backhaul-tu$i.service
-      rm /etc/systemd/system/backhaul-tu$i.service
-      echo "Service backhaul-tu$i removed."
-    done
+      for i in {1..6}; do
+        sudo systemctl stop backhaul-tu$i.service
+        sudo systemctl disable backhaul-tu$i.service
+        rm /etc/systemd/system/backhaul-tu$i.service
+        echo "Service backhaul-tu$i removed."
+      done
 
-    sudo systemctl daemon-reload
-    echo "All files and services removed."
-    ;;
-  *)
-    echo "Invalid choice!"
-    ;;
-esac
+      sudo systemctl daemon-reload
+      echo "All files and services removed."
+      ;;
+    *)
+      echo "Invalid choice!"
+      ;;
+  esac
+done
