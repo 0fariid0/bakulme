@@ -1,6 +1,6 @@
 #!/bin/bash
 
-download_and_extract() {
+download_and_extract_zip() {
   url=$1
   output=$2
   echo "Downloading $output..."
@@ -12,7 +12,7 @@ download_and_extract() {
   echo "Download of $output completed."
 
   echo "Extracting $output..."
-  tar -xzf $output
+  unzip $output
   if [[ $? -eq 0 ]]; then
     echo "Extraction of $output completed."
     echo "Removing the ZIP file $output..."
@@ -77,7 +77,7 @@ while true; do
       ;;
     2)
       echo "Iran selected."
-      download_and_extract "https://github.com/0fariid0/bakulme/raw/main/ir.zip" "ir.zip"
+      download_and_extract_zip "https://github.com/0fariid0/bakulme/raw/main/ir.zip" "ir.zip"
 
       for i in {1..6}; do
         create_service "backhaul-tu$i" "tu$i.toml"
@@ -85,7 +85,7 @@ while true; do
       ;;
     3)
       echo "Abroad selected."
-      download_and_extract "https://github.com/0fariid0/bakulme/raw/main/kh.zip" "kh.zip"
+      download_and_extract_zip "https://github.com/0fariid0/bakulme/raw/main/kh.zip" "kh.zip"
 
       read -p "Enter abroad number (1 to 6): " external_number
       if [[ $external_number =~ ^[1-6]$ ]]; then
