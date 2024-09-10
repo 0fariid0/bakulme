@@ -1,28 +1,26 @@
 #!/bin/bash
 
-download_file() {
+download_and_extract() {
   url=$1
   output=$2
   echo "Downloading $output..."
-  curl -L -o $output $url
+  wget $url -O $output
   if [[ $? -ne 0 ]]; then
     echo "Error downloading $output."
     exit 1
   fi
   echo "Download of $output completed."
-}
 
-extract_zip() {
-  file=$1
-  if [[ -f $file ]]; then
-    echo "Extracting $file..."
-    unzip $file
-    echo "Extraction of $file completed."
-    echo "Removing the ZIP file $file..."
-    rm -f $file
-    echo "$file removed."
+  echo "Extracting $output..."
+  tar -xzf $output
+  if [[ $? -eq 0 ]]; then
+    echo "Extraction of $output completed."
+    echo "Removing the ZIP file $output..."
+    rm -f $output
+    echo "$output removed."
   else
-    echo "$file not found."
+    echo "Error extracting $output."
+    exit 1
   fi
 }
 
@@ -79,8 +77,7 @@ while true; do
       ;;
     2)
       echo "Iran selected."
-      download_file "https://github.com/0fariid0/bakulme/raw/main/ir.zip" "ir.zip"
-      extract_zip "ir.zip"
+      download_and_extract "https://github.com/0fariid0/bakulme/raw/main/ir.zip" "ir.zip"
 
       for i in {1..6}; do
         create_service "backhaul-tu$i" "tu$i.toml"
@@ -88,8 +85,7 @@ while true; do
       ;;
     3)
       echo "Abroad selected."
-      download_file "https://github.com/0fariid0/bakulme/raw/main/kh.zip" "kh.zip"
-      extract_zip "kh.zip"
+      download_and_extract "https://github.com/0fariid0/bakulme/raw/main/kh.zip" "kh.zip"
 
       read -p "Enter abroad number (1 to 6): " external_number
       if [[ $external_number =~ ^[1-6]$ ]]; then
