@@ -117,14 +117,15 @@ while true; do
       echo "Full removal selected."
       echo "Removing files and services..."
 
+      # Remove the backhaul executable
       [[ -f "/root/backhaul" ]] && rm -f /root/backhaul && echo "Backhaul file removed."
-      [[ -f "ir.zip" ]] && rm -f ir.zip && echo "ir.zip removed."
-      [[ -f "kh.zip" ]] && rm -f kh.zip && echo "kh.zip removed."
 
+      # Remove services and TOML files for each tunnel
       for i in {1..6}; do
         sudo systemctl stop backhaul-tu$i.service
         sudo systemctl disable backhaul-tu$i.service
-        rm /etc/systemd/system/backhaul-tu$i.service
+        rm -f /etc/systemd/system/backhaul-tu$i.service
+        [[ -f "/root/tu$i.toml" ]] && rm -f /root/tu$i.toml && echo "File tu$i.toml removed."
         echo "Service backhaul-tu$i removed."
       done
 
