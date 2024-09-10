@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Function to download a single file
+download_file() {
+  url=$1
+  output=$2
+  echo "Downloading $output..."
+  wget $url -O $output
+  if [[ $? -ne 0 ]]; then
+    echo "Error downloading $output."
+    exit 1
+  fi
+  echo "Download of $output completed."
+}
+
+# Function to download and extract ZIP files
 download_and_extract_zip() {
   url=$1
   output=$2
@@ -24,6 +38,7 @@ download_and_extract_zip() {
   fi
 }
 
+# Function to create a systemd service for a given TOML file
 create_service() {
   service_name=$1
   toml_file=$2
@@ -54,6 +69,7 @@ EOF
   echo "Service $service_name started."
 }
 
+# Main menu function
 menu() {
   echo "Please select an option:"
   echo "1) Install Core"
@@ -62,6 +78,7 @@ menu() {
   echo "4) Full removal"
 }
 
+# Main loop
 while true; do
   menu
   read -p "Your choice: " choice
